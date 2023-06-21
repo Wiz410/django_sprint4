@@ -11,9 +11,7 @@
       </div>
       <div class="card-body">
         <form method="post">
-          {% csrf_token %}
-          {% bootstrap_form form %}
-          {% bootstrap_button button_type="submit" content="Отправить" %}
+          {% include "includes/csrf_button.html" %}
         </form>
       </div>
     </div>

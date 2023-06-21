@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 {% block title %}
-  {{ post.title }} | {% if post.location and post.location.is_published %}{{ post.location.name }}{% else %}Планета Земля{% endif %} |
-  {{ post.pub_date|date:"d E Y" }}
+  {{ post.title }}
+  | {% if post.location and post.location.is_published %}
+    {{ post.location.name }}
+  {% else %}
+    Планета Земля
+  {% endif %}
+  | {{ post.pub_date|date:"d E Y" }}
 {% endblock %}
 {% block content %}
   <div class="col d-flex justify-content-center">
@@ -9,7 +14,9 @@
       <div class="card-body">
         {% if post.image %}
           <a href="{{ post.image.url }}" target="_blank">
-            <img class="border-3 rounded img-fluid img-thumbnail mb-2 mx-auto d-block" src="{{ post.image.url }}">
+            <img
+              class="border-3 rounded img-fluid img-thumbnail mb-2 mx-auto d-block"
+              src="{{ post.image.url }}">
           </a>
         {% endif %}
         <h5 class="card-title">{{ post.title }}</h5>
@@ -20,18 +27,28 @@
             {% elif not post.category.is_published %}
               <p class="text-danger">Выбранная категория снята с публикации админом</p>
             {% endif %}
-            {{ post.pub_date|date:"d E Y, H:i" }} | {% if post.location and post.location.is_published %}{{ post.location.name }}{% else %}Планета Земля{% endif %}<br>
-            От автора <a class="text-muted" href="{% url 'blog:profile' post.author %}">@{{ post.author.username }}</a> в
-            категории {% include "includes/category_link.html" %}
+            {% include "includes/data_location.html" %}
+            От автора <a
+                        class="text-muted"
+                        href="{% url 'blog:profile' post.author %}">
+                          @{{ post.author.username }}
+                      </a>
+            в категории {% include "includes/category_link.html" %}
           </small>
         </h6>
         <p class="card-text">{{ post.text|linebreaksbr }}</p>
         {% if user == post.author %}
           <div class="mb-2">
-            <a class="btn btn-sm text-muted" href="{% url 'blog:edit_post' post.id %}" role="button">
+            <a
+              class="btn btn-sm text-muted"
+              href="{% url 'blog:edit_post' post.id %}"
+              role="button">
               Отредактировать публикацию
             </a>
-            <a class="btn btn-sm text-muted" href="{% url 'blog:delete_post' post.id %}" role="button">
+            <a
+              class="btn btn-sm text-muted"
+              href="{% url 'blog:delete_post' post.id %}"
+              role="button">
               Удалить публикацию
             </a>
           </div>

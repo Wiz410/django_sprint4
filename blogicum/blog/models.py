@@ -159,6 +159,8 @@ class Comment(BaseModel, BaseAuthorModel):
 
     class Meta:
         ordering = ['created_at', 'author']
+        verbose_name = 'коментарий'
+        verbose_name_plural = 'Комментарии'
 
     def __str__(self):
         return self.author

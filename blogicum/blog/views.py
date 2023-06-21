@@ -1,4 +1,3 @@
-# from django.http import HttpResponse, HttpRequest
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
@@ -13,30 +12,25 @@ from django.views.generic import (
 from django.shortcuts import get_object_or_404
 
 from .mixins import (
-    PaginatorMixin,
-    ProfileMixin,
-    PostMixin,
-    CommentMixin,
     CommentDispacthMixin,
     PostDispatchMixin,
-    PostFormMixin,
     URLPostMixin,
     URLProfileMixin,
 )
-from .forms import CommentForm, UserForm
+from .forms import CommentForm, UserForm, PostForm
 from .models import Post, Category, Comment
+
+POST_PER_PAGE: int = 10
 
 DATENOW = timezone.now()
 
 User = get_user_model()
 
 
-class IndexListView(
-    PostMixin,
-    PaginatorMixin,
-    ListView
-):
+class IndexListView(ListView):
     """Главная страница."""
+    model = Post
+    paginate_by = POST_PER_PAGE
     template_name = 'blog/index.html'
 
     def get_queryset(self):
@@ -47,11 +41,9 @@ class IndexListView(
         ).order_by('-pub_date').annotate(comment_count=Count('comment'))
 
 
-class PostDetailView(
-    PostMixin,
-    DetailView
-):
+class PostDetailView(DetailView):
     """Страница поста."""
+    model = Post
     template_name = 'blog/detail.html'
     pk_url_kwarg = 'post_id'
 
@@ -67,13 +59,14 @@ class PostDetailView(
 
 
 class CreatePostCreateView(
-    PostMixin,
-    PostFormMixin,
-    LoginRequiredMixin,
     URLProfileMixin,
+    LoginRequiredMixin,
     CreateView
 ):
     """Создание поста."""
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/create.html'
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -81,14 +74,15 @@ class CreatePostCreateView(
 
 
 class EditPostUpdateView(
-    PostMixin,
-    PostFormMixin,
     PostDispatchMixin,
-    LoginRequiredMixin,
     URLPostMixin,
+    LoginRequiredMixin,
     UpdateView
 ):
     """Редактирование поста."""
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/create.html'
     pk_url_kwarg = 'post_id'
 
     def form_valid(self, form):
@@ -98,23 +92,22 @@ class EditPostUpdateView(
 
 
 class DeletePostDeleteView(
-    PostMixin,
-    PostFormMixin,
     PostDispatchMixin,
-    LoginRequiredMixin,
     URLProfileMixin,
+    LoginRequiredMixin,
     DeleteView
 ):
     """Удаление поста."""
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/create.html'
     pk_url_kwarg = 'post_id'
 
 
-class CategoryPostsListView(
-    PostMixin,
-    PaginatorMixin,
-    ListView
-):
+class CategoryPostsListView(ListView):
     """Страница с категориями."""
+    model = Post
+    paginate_by = POST_PER_PAGE
     template_name = 'blog/category.html'
     slug_url_kwarg = 'category_slug'
 
@@ -138,12 +131,10 @@ class CategoryPostsListView(
         ).order_by('-pub_date').annotate(comment_count=Count('comment'))
 
 
-class ProfileListView(
-    ProfileMixin,
-    PaginatorMixin,
-    ListView
-):
+class ProfileListView(ListView):
     """Страница профиля."""
+    model = User
+    paginate_by = POST_PER_PAGE
     template_name = 'blog/profile.html'
     slug_url_kwarg = 'username'
 
@@ -162,12 +153,12 @@ class ProfileListView(
 
 
 class ProfilUpdateView(
-    ProfileMixin,
-    LoginRequiredMixin,
     URLProfileMixin,
+    LoginRequiredMixin,
     UpdateView
 ):
     """Редактивование страници профиля."""
+    model = User
     form_class = UserForm
     template_name = 'blog/user.html'
     slug_field = 'username'
@@ -179,12 +170,12 @@ class ProfilUpdateView(
 
 
 class CommentCreateView(
-    CommentMixin,
-    LoginRequiredMixin,
     URLPostMixin,
+    LoginRequiredMixin,
     CreateView
 ):
     """Создание комментария."""
+    model = Comment
     posts = None
     form_class = CommentForm
     pk_url_kwarg = 'post_id'
@@ -200,20 +191,26 @@ class CommentCreateView(
 
 
 class EditCommentUpdateView(
-    CommentMixin,
     CommentDispacthMixin,
-    LoginRequiredMixin,
     URLPostMixin,
+    LoginRequiredMixin,
     UpdateView
 ):
     """Редактирование комментария."""
+    model = Comment
+    form_class = CommentForm
+    pk_url_kwarg = 'comment_id'
+    template_name = 'blog/comment.html'
 
 
 class DeleteCommentDeleteView(
-    CommentMixin,
     CommentDispacthMixin,
-    LoginRequiredMixin,
     URLPostMixin,
+    LoginRequiredMixin,
     DeleteView
 ):
     """Удаление комментария."""
+    model = Comment
+    form_class = CommentForm
+    pk_url_kwarg = 'comment_id'
+    template_name = 'blog/comment.html'
