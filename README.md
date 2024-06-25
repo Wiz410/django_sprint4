@@ -47,5 +47,5 @@ python manage.py runserver
 
 Проект будет доступен по [локальному адресу](http://127.0.0.1:8000/).
 
-#### Авторы
+#### Автор
 - [Danila Polunin](https://github.com/Wiz410)
